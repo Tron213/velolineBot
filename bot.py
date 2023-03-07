@@ -7,6 +7,9 @@ import telebot
 from telebot import types
 from config import API_TOKEN
 import sqlite3 
+from DB import create_connection, BDelectro
+
+create_connection("bycicle.db")
 
 partVelo=[]
 
@@ -76,6 +79,7 @@ def func(message):
         bot.send_message(message.chat.id, text="вводить в одну строку через запятую".format(message.from_user), reply_markup=markup)
 
         bot.register_next_step_handler(msg,velo)
+        BDelectro(partVelo)
     
     if message.text == 'Хардтейл 🚴':
         msg = bot.send_message(message.chat.id, 
@@ -128,5 +132,7 @@ def velo(message):
 
 
 bot.infinity_polling()
+
+
 
 
