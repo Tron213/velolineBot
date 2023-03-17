@@ -6,10 +6,11 @@
 import telebot
 from telebot import types
 from config import API_TOKEN
-import sqlite3 
+import sqlite3
 from DB import create_connection, BDelectro
+import time
 
-create_connection("bycicle.db")
+
 
 partVelo=[]
 
@@ -46,10 +47,10 @@ def func(message):
         back=types.KeyboardButton("Назад 🔙")
         markup.add(btn1, btn2, btn3, back)
         bot.send_message(message.chat.id, text="Выберите класс добавляемого велосипеда", reply_markup=markup)
-    
-        
-        
-        
+
+
+
+
     elif(message.text == "Назад 🔙"):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton("Добавить Велосипед")
@@ -57,10 +58,10 @@ def func(message):
         btn3 = types.KeyboardButton("Создать пост")
         markup.add(btn1, btn2, btn3)
         bot.send_message(message.chat.id, text="Возвращаю в главное меню".format(message.from_user), reply_markup=markup)
-    
-    
+
+
     if message.text == 'Электро ⚡':
-        msg = bot.send_message(message.chat.id, 
+        msg = bot.send_message(message.chat.id,
         """название велосипеда
         рамы
         вилки
@@ -72,17 +73,21 @@ def func(message):
         передний перкл
         вес
         Цена продажи """)
-        
+
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton("Назад 🔙")
         markup.add(btn1)
         bot.send_message(message.chat.id, text="вводить в одну строку через запятую".format(message.from_user), reply_markup=markup)
 
-        bot.register_next_step_handler(msg,velo)
-        BDelectro(partVelo)
-    
+        bot.register_next_step_handler(message,velo)
+
+
+
+
+
+
     if message.text == 'Хардтейл 🚴':
-        msg = bot.send_message(message.chat.id, 
+        msg = bot.send_message(message.chat.id,
         """название велосипеда
         рамы
         вилки
@@ -102,7 +107,7 @@ def func(message):
         bot.register_next_step_handler(msg,velo)
 
     if message.text == 'Подвесы 🦹‍♂️':
-        msg = bot.send_message(message.chat.id, 
+        msg = bot.send_message(message.chat.id,
         """название велосипеда
         рамы
         вилки
@@ -121,14 +126,49 @@ def func(message):
 
         bot.register_next_step_handler(msg,velo)
 
-       
+
+
+
+
 
 def velo(message):
+    connection = sqlite3.connect("bycicle.db")
+    cursor=connection.cursor()
+    slovar=message.text
+    words = [word.strip() for word in slovar.split(",")]  # Split the text into words and remove any leading/trailing whitespace
+    quoted_words = [f'"{word}"' for word in words]  # Add quotes around each word
+
+    result = ", ".join(quoted_words)
+
+    asa="INSERT INTO Electro(name, frame, fork, fwheels, bwheels, Fbrake, Bbrake, fsw, bsw, weight, price) " \
+        "VALUES ("+str(result)+");"
+    print(slovar)
+    print (asa)
+    # Сохраняем изменения
+    cursor.execute(asa)
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+
+
+
+'''def velo(message):
     x = message.text
-    partVelo.append(x.split(", "))
-    print(partVelo)
-    bot.reply_to(message, message.text )
-    
+    if message.text != "Назад 🔙":
+
+        print(x)
+        return x
+    else:
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        btn1 = types.KeyboardButton("Добавить Велосипед")
+        btn2 = types.KeyboardButton("Удалит велосипед")
+        btn3 = types.KeyboardButton("Создать пост")
+        markup.add(btn1, btn2, btn3)
+        bot.send_message(message.chat.id, text="Возвращаю в главное меню".format(message.from_user), reply_markup=markup)'''
+
+
 
 
 bot.infinity_polling()
