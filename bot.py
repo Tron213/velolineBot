@@ -7,7 +7,7 @@ import telebot
 from telebot import types
 from config import API_TOKEN
 import sqlite3
-from DB import create_connection, BDelectro
+from DB import velo,search
 import time
 
 
@@ -15,6 +15,8 @@ import time
 partVelo=[]
 
 bot = telebot.TeleBot(API_TOKEN)
+
+Table=["Electro","Podves","hard"]
 
 
 @bot.message_handler(commands=['start'])
@@ -74,12 +76,13 @@ def func(message):
         вес
         Цена продажи """)
 
+        table= Table[0]
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         btn1 = types.KeyboardButton("Назад 🔙")
         markup.add(btn1)
         bot.send_message(message.chat.id, text="вводить в одну строку через запятую".format(message.from_user), reply_markup=markup)
 
-        bot.register_next_step_handler(message,velo)
+        bot.register_next_step_handler(message,velo,table)
 
 
 
@@ -103,8 +106,9 @@ def func(message):
         btn1 = types.KeyboardButton("Назад 🔙")
         markup.add(btn1)
         bot.send_message(message.chat.id, text="вводить в одну строку через запятую".format(message.from_user), reply_markup=markup)
+        table=Table[2]
 
-        bot.register_next_step_handler(msg,velo)
+        bot.register_next_step_handler(message,velo,table)
 
     if message.text == 'Подвесы 🦹‍♂️':
         msg = bot.send_message(message.chat.id,
@@ -123,50 +127,22 @@ def func(message):
         btn1 = types.KeyboardButton("Назад 🔙")
         markup.add(btn1)
         bot.send_message(message.chat.id, text="вводить в одну строку через запятую".format(message.from_user), reply_markup=markup)
+        table=Table[1]
+        bot.register_next_step_handler(message,velo,table)
 
-        bot.register_next_step_handler(msg,velo)
-
-
-
-
-
-
-def velo(message):
-    connection = sqlite3.connect("bycicle.db")
-    cursor=connection.cursor()
-    slovar=message.text
-    words = [word.strip() for word in slovar.split(",")]  # Split the text into words and remove any leading/trailing whitespace
-    quoted_words = [f'"{word}"' for word in words]  # Add quotes around each word
-
-    result = ", ".join(quoted_words)
-
-    asa="INSERT INTO Electro(name, frame, fork, fwheels, bwheels, Fbrake, Bbrake, fsw, bsw, weight, price) " \
-        "VALUES ("+str(result)+");"
-    print(slovar)
-    print (asa)
-    # Сохраняем изменения
-    cursor.execute(asa)
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-
-
-
-'''def velo(message):
-    x = message.text
-    if message.text != "Назад 🔙":
-
-        print(x)
-        return x
-    else:
+    if message.text== "Электро ⚡⚡":
+        
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = types.KeyboardButton("Добавить Велосипед")
-        btn2 = types.KeyboardButton("Удалит велосипед")
-        btn3 = types.KeyboardButton("Создать пост")
-        markup.add(btn1, btn2, btn3)
-        bot.send_message(message.chat.id, text="Возвращаю в главное меню".format(message.from_user), reply_markup=markup)'''
+        btn1 = types.KeyboardButton("Назад 🔙")
+        markup.add(btn1)
+        bot.send_message(message.chat.id, text="ПОСЛЕ УДАЛЕНИЯ ВЕЛОСИПЕД ИСЧЕЗНТ ИЗ ЦВЕТОВ".format(message.from_user), reply_markup=markup)
+        table=Table[0]
+        bot.send_message(message.chat.id,text=str(search(table)).format(message.from_user), reply_markup=markup)
+        
+
+
+
+
 
 
 

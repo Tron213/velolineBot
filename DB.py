@@ -1,39 +1,39 @@
 import sqlite3
 from sqlite3 import Error
-import time
+
 
 connection = sqlite3.connect("bycicle.db")
 
 
-def create_connection(path):
-    connection = None
-    try:
-        connection = sqlite3.connect(path)
-        print("Connection to SQLite DB successful")
-        connection.close
-    except Error as e:
-        print(f"The error '{e}' occurred")
-
-    return connection
-
-def BDelectro(slovar,path):
-    connection = sqlite3.connect(path)
+def velo(message,table):
+    connection = sqlite3.connect("bycicle.db")
     cursor=connection.cursor()
-    time.sleep(10)
-    
-    "INSERT INTO Electro(name, frame, fork, fwheels, bwheels, Fbrake, Bbrake, fsw, bsw, weight, price) " \
-        "VALUES ("+slovar+")"
-    
+    slovar=message.text
+    words = [word.strip() for word in slovar.split(",")]  # Split the text into words and remove any leading/trailing whitespace
+    quoted_words = [f'"{word}"' for word in words]  # Add quotes around each word
+
+    result = ", ".join(quoted_words)
+
+    electro="INSERT INTO VELO(name, frame, fork, fwheels, bwheels, Fbrake, Bbrake, fsw, bsw, weight, price, vid) " \
+        "VALUES ("+str(result)+",'"+table+"');"
+    print(slovar)
+    print (electro)
     # Сохраняем изменения
+    cursor.execute(electro)
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+def search(table):
+    connection = sqlite3.connect("bycicle.db")
+    cursor=connection.cursor()
+    
+    otvet=cursor.execute("SELECT * FROM VELO WHERE vid=?",[table]).fetchall()
+    print(otvet[0])
+    
+    
     connection.commit()
     cursor.close()
     connection.close()
-    
-
-#cursor=connection.cursor()
-
-#cursor.execute(f"""  INSERT INTO Electro(name, frame, fork, fwheels, bwheels, Fbrake, Bbrake, fsw, bsw, weight, price) VALUES("ds","ds","df","gff","hg","yt","nh","xc","kk","qw","dc") """)
-
-#connection.commit()
-#cursor.close()
-#connection.close()
+    return otvet
